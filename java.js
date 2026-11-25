@@ -97,9 +97,15 @@ const kaspiDetails = {
     24: { specifications: [["Номер OEM", "7P6919088B"], ["Артикул производителя", "7P6919088B"], ["Марка автомобиля", "Volkswagen"], ["Модель автомобиля", "Touareg"], ["Год выпуска автомобиля", "2014-2018"], ["Дополнительная информация", "3.0 TDI"]] }
 };
 
-let cart = [];
+let cart = (() => {
+    try {
+        return JSON.parse(localStorage.getItem("fuelpartsCart") || "[]");
+    } catch (_) {
+        return [];
+    }
+})();
 let activeCategory = "all";
-let favorites = new Set();
+let favorites = new Set(JSON.parse(localStorage.getItem("fuelpartsFavorites") || "[]"));
 let catalogPageSize = 24;
 let catalogVisibleCount = catalogPageSize;
 const fallbackProducts = [...products];
@@ -149,6 +155,14 @@ const productModalContent = document.getElementById("productModalContent");
 
 function formatPrice(price) {
     return new Intl.NumberFormat("kk-KZ").format(price) + " ₸";
+}
+
+function persistCart() {
+    localStorage.setItem("fuelpartsCart", JSON.stringify(cart));
+}
+
+function persistFavorites() {
+    localStorage.setItem("fuelpartsFavorites", JSON.stringify([...favorites]));
 }
 
 function repairMojibake(text) {
@@ -221,8 +235,17 @@ async function loadCatalog() {
             }
         } catch (_) {}
     }
+    populateBrandFilter();
     renderProducts(getVisibleProducts());
     observeProducts();
+}
+
+function populateBrandFilter() {
+    const select = document.getElementById("brandFilter");
+    const brands = [...new Set(products.map(product => product.brand).filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b, "ru"));
+    select.innerHTML = `<option value="all">Все производители</option>` +
+        brands.map(brand => `<option value="${brand.replace(/"/g, "&quot;")}">${brand}</option>`).join("");
 }
 
 function parseCsv(text) {
@@ -298,6 +321,8 @@ function renderProducts(items = products) {
         activeCategory !== "all" ||
         document.getElementById("priceMin").value ||
         document.getElementById("priceMax").value ||
+        document.getElementById("brandFilter").value !== "all" ||
+        document.getElementById("vehicleFilter").value.trim() ||
         document.getElementById("sortProducts").value !== "default";
     resetButton.hidden = !hasFilters;
     if (!items.length) {
@@ -344,12 +369,21 @@ function getVisibleProducts() {
     const query = document.getElementById("searchInput").value.trim().toLowerCase();
     const minPrice = Number(document.getElementById("priceMin").value);
     const maxPrice = Number(document.getElementById("priceMax").value);
+    const brand = document.getElementById("brandFilter").value;
+    const vehicle = document.getElementById("vehicleFilter").value.trim().toLowerCase();
     const visible = products.filter(product => {
         const matchesCategory = activeCategory === "all" || product.category === activeCategory;
         const matchesQuery = !query || `${product.name} ${product.brand} ${product.article || ""}`.toLowerCase().includes(query);
         const matchesMin = !minPrice || product.price == null || product.price >= minPrice;
         const matchesMax = !maxPrice || product.price == null || product.price <= maxPrice;
-        return matchesCategory && matchesQuery && matchesMin && matchesMax;
+        const matchesBrand = brand === "all" || product.brand === brand;
+        const details = kaspiDetails[product.id];
+        const vehicleText = details?.specifications
+            ?.flatMap(spec => spec.slice(1))
+            .join(" ")
+            .toLowerCase() || "";
+        const matchesVehicle = !vehicle || `${product.name} ${product.brand} ${vehicleText}`.toLowerCase().includes(vehicle);
+        return matchesCategory && matchesQuery && matchesMin && matchesMax && matchesBrand && matchesVehicle;
     });
     const sort = document.getElementById("sortProducts").value;
     if (sort === "priceAsc") return [...visible].sort((a, b) => a.price - b.price);
@@ -620,6 +654,7 @@ function renderProductPage(product) {
 }
 
 function renderCart() {
+    persistCart();
     const count = cart.reduce((sum, item) => sum + item.quantity, 0);
     cartCount.textContent = count;
     cartTitleCount.textContent = `(${count})`;
@@ -764,6 +799,18 @@ document.getElementById("priceMax").addEventListener("input", () => {
     observeProducts();
 });
 
+document.getElementById("brandFilter").addEventListener("change", () => {
+    catalogVisibleCount = catalogPageSize;
+    renderProducts(getVisibleProducts());
+    observeProducts();
+});
+
+document.getElementById("vehicleFilter").addEventListener("input", () => {
+    catalogVisibleCount = catalogPageSize;
+    renderProducts(getVisibleProducts());
+    observeProducts();
+});
+
 
 function resetCatalogFilters() {
     activeCategory = "all";
@@ -771,6 +818,8 @@ function resetCatalogFilters() {
     document.getElementById("searchInput").value = "";
     document.getElementById("priceMin").value = "";
     document.getElementById("priceMax").value = "";
+    document.getElementById("brandFilter").value = "all";
+    document.getElementById("vehicleFilter").value = "";
     document.getElementById("sortProducts").value = "default";
     document.querySelectorAll(".filter").forEach(item => item.classList.toggle("active", item.dataset.category === "all"));
     renderProducts(getVisibleProducts());
@@ -805,6 +854,7 @@ productGrid.addEventListener("click", event => {
         const id = Number(favoriteButton.dataset.favorite);
         if (favorites.has(id)) favorites.delete(id);
         else favorites.add(id);
+        persistFavorites();
         renderProducts(getVisibleProducts());
         showToast(favorites.has(id) ? "Добавлено в избранное" : "Удалено из избранного");
         document.getElementById("favoriteIcon").textContent = favorites.size ? "♥" : "♡";
@@ -837,6 +887,7 @@ productModalContent.addEventListener("click", event => {
         if (favorites.has(id)) favorites.delete(id);
         else favorites.add(id);
         document.getElementById("favoriteIcon").textContent = favorites.size ? "♥" : "♡";
+        persistFavorites();
         renderProducts(getVisibleProducts());
         observeProducts();
         openProductModal(id);
@@ -892,6 +943,12 @@ document.getElementById("logoLink").addEventListener("click", event => {
         backToCatalog();
         return;
     }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+document.getElementById("footerLogoLink").addEventListener("click", event => {
+    event.preventDefault();
+    if (!document.getElementById("productPage").hidden) backToCatalog();
     window.scrollTo({ top: 0, behavior: "smooth" });
 });
 

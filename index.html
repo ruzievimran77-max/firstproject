@@ -16,7 +16,7 @@
         <div class="container topbar__inner">
             <div class="topbar__item"><span class="pin-icon">●</span> Алматы и весь Казахстан</div>
             <div class="topbar__item"><span>◷</span> Ежедневно с 09:00 до 21:00</div>
-            <a class="topbar__phone" href="tel:+77271234567">+7 (727) 123-45-67</a>
+            <a class="topbar__phone" href="tel:+77087577834">+7 708 757 7834</a>
         </div>
     </div>
 
@@ -48,6 +48,14 @@
             </div>
         </div>
     </header>
+    <nav class="main-nav" aria-label="Основная навигация">
+        <div class="container main-nav__inner">
+            <a href="#catalog">Каталог</a>
+            <a href="#delivery">Доставка и оплата</a>
+            <a href="#returns">Гарантия и возврат</a>
+            <a href="#contacts">Контакты</a>
+        </div>
+    </nav>
 
     <main id="catalogMain">
         <section class="hero">
@@ -111,6 +119,12 @@
                 <div class="catalog-toolbar">
                     <span id="productCount">299 товаров</span>
                     <div class="catalog-toolbar__controls">
+                        <select id="brandFilter" aria-label="Производитель">
+                            <option value="all">Все производители</option>
+                        </select>
+                        <label class="vehicle-filter">VIN / авто
+                            <input id="vehicleFilter" type="text" placeholder="Марка или модель">
+                        </label>
                         <label class="price-filter">Цена
                             <input id="priceMin" type="number" min="0" placeholder="От">
                             <span>—</span>
@@ -129,6 +143,43 @@
                 <div class="products" id="products"></div>
             </div>
         </section>
+
+        <section class="service-section" id="delivery">
+            <div class="container service-grid">
+                <article>
+                    <span>01</span>
+                    <h2>Доставка</h2>
+                    <p>Доставка по Алматы и отправка по Казахстану. Точные сроки и стоимость уточняются при оформлении заказа.</p>
+                </article>
+                <article>
+                    <span>02</span>
+                    <h2>Оплата</h2>
+                    <p>Способы оплаты согласовываются менеджером при подтверждении заказа.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="service-section service-section--light" id="returns">
+            <div class="container">
+                <p class="section-heading__eyebrow">Подтверждение совместимости</p>
+                <h2>Гарантия и возврат</h2>
+                <p>Перед заказом рекомендуем проверить артикул и совместимость с вашим автомобилем. Условия гарантии и возврата уточняются при оформлении заказа.</p>
+            </div>
+        </section>
+
+        <section class="contacts" id="contacts">
+            <div class="container contacts__grid">
+                <div>
+                    <p class="section-heading__eyebrow">Свяжитесь с нами</p>
+                    <h2>Поможем подобрать деталь</h2>
+                    <p>Сообщите артикул или VIN — специалист поможет с выбором совместимого товара.</p>
+                </div>
+                <div class="contacts__actions">
+                    <a href="tel:+77087577834">+7 708 757 7834</a>
+                    <a class="contacts__whatsapp" href="https://wa.me/77087577834" target="_blank" rel="noopener">Написать в WhatsApp</a>
+                </div>
+            </div>
+        </section>
     </main>
 
     <main class="product-page" id="productPage" hidden>
@@ -137,7 +188,7 @@
 
     <div class="image-zoom-overlay" id="imageZoomOverlay">
         <button id="closeImageZoom" type="button" aria-label="Закрыть">×</button>
-        <img id="imageZoomed" src="" alt="">
+        <img id="imageZoomed" alt="">
     </div>
 
     <div class="cart-overlay" id="cartOverlay"></div>
@@ -171,6 +222,19 @@
             <label>Имя<input type="text" name="name" required placeholder="Как к вам обращаться"></label>
             <label>Телефон<input type="tel" name="phone" required placeholder="+7 (___) ___-__-__"></label>
             <label>Адрес доставки<input type="text" name="address" required placeholder="Город, улица, дом"></label>
+            <label>Способ получения
+                <select name="delivery">
+                    <option>Доставка курьером</option>
+                    <option>Самовывоз</option>
+                    <option>Отправка по Казахстану</option>
+                </select>
+            </label>
+            <label>Способ оплаты
+                <select name="payment">
+                    <option>Уточнить при звонке</option>
+                </select>
+            </label>
+            <label>Комментарий<textarea name="comment" rows="3" placeholder="VIN, артикул или пожелания"></textarea></label>
             <div class="checkout-modal__total"><span>К оплате:</span><strong id="checkoutTotal">0 ₸</strong></div>
             <button type="submit">Подтвердить заказ</button>
         </form>
@@ -192,6 +256,29 @@
         <button class="product-modal__close" id="closeProductModal" type="button" aria-label="Закрыть">×</button>
         <div id="productModalContent"></div>
     </section>
+
+    <footer class="footer">
+        <div class="container footer__inner">
+            <div>
+                <a class="logo logo--footer" href="#" id="footerLogoLink" aria-label="На главную">
+                    <span class="logo__mark">P</span>
+                    <span class="logo__text">FUEL<span>PARTS</span></span>
+                </a>
+                <p>Запчасти топливной системы для бензиновых и дизельных автомобилей.</p>
+            </div>
+            <div>
+                <strong>Каталог</strong>
+                <a href="#catalog">Все товары</a>
+                <a href="#delivery">Доставка</a>
+                <a href="#returns">Возврат</a>
+            </div>
+            <div>
+                <strong>Контакты</strong>
+                <a href="tel:+77087577834">+7 708 757 7834</a>
+                <a href="https://wa.me/77087577834" target="_blank" rel="noopener">WhatsApp</a>
+            </div>
+        </div>
+    </footer>
 
     <div class="toast" id="toast" role="status"></div>
     <button class="back-to-top" id="backToTop" type="button" aria-label="Наверх">↑</button>
