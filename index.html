@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
     <div class="topbar">
         <div class="container topbar__inner">
             <div class="topbar__item"><span class="pin-icon">●</span> Алматы и весь Казахстан</div>
@@ -35,9 +36,12 @@
             </form>
             <div class="header__actions">
                 <button class="icon-action" id="favoriteButton" type="button" aria-label="Избранное"><span id="favoriteIcon">♡</span><small>Избранное</small></button>
-                <button class="icon-action" id="compareButton" type="button" aria-label="Сравнение"><span>⇄</span><small>Сравнение</small></button>
                 <button class="icon-action icon-action--cart" id="cartButton" type="button" aria-label="Корзина">
-                    <span class="cart-icon">▣</span>
+                    <svg class="cart-icon" width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M3 4h2l2.4 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.5 8H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="9.5" cy="19" r="1.5" fill="currentColor"/>
+                        <circle cx="17" cy="19" r="1.5" fill="currentColor"/>
+                    </svg>
                     <small>Корзина</small>
                     <b id="cartCount">0</b>
                 </button>
@@ -45,7 +49,7 @@
         </div>
     </header>
 
-    <main>
+    <main id="catalogMain">
         <section class="hero">
             <div class="container hero__inner">
                 <div class="hero__content">
@@ -72,7 +76,17 @@
         <section class="advantages">
             <div class="container advantages__grid">
                 <article><span class="advantage-icon">✓</span><div><h3>Оригинальные детали</h3><p>Для бензина и дизеля</p></div></article>
-                <article><span class="advantage-icon">▣</span><div><h3>Быстрая доставка</h3><p>По Алматы за 1–2 дня</p></div></article>
+                <article>
+                    <span class="advantage-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M3 6h11v10H3V6Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                            <path d="M14 9h4l3 3v4h-7V9Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                            <circle cx="7" cy="17" r="1.8" fill="white" stroke="currentColor" stroke-width="1.5"/>
+                            <circle cx="18" cy="17" r="1.8" fill="white" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                    </span>
+                    <div><h3>Быстрая доставка</h3><p>По Алматы за 1–2 дня</p></div>
+                </article>
                 <article><span class="advantage-icon">↩</span><div><h3>Возврат за 14 дней</h3><p>Без лишних вопросов</p></div></article>
                 <article><span class="advantage-icon">☎</span><div><h3>Подбор по VIN</h3><p>Специалист найдёт деталь</p></div></article>
             </div>
@@ -90,14 +104,41 @@
                 <div class="filters" id="filters">
                     <button class="filter active" type="button" data-category="all">Все товары</button>
                     <button class="filter" type="button" data-category="pumps">Топливные насосы</button>
-                    <button class="filter" type="button" data-category="injectors">Форсунки и рампы</button>
-                    <button class="filter" type="button" data-category="filters">Топливные фильтры</button>
-                    <button class="filter" type="button" data-category="chemistry">Присадки и очистители</button>
+                    <button class="filter" type="button" data-category="sensors">Датчики кислорода</button>
+                    <button class="filter" type="button" data-category="ignition">Свечные провода</button>
+                    <button class="filter" type="button" data-category="accessories">Аксессуары</button>
+                </div>
+                <div class="catalog-toolbar">
+                    <span id="productCount">299 товаров</span>
+                    <div class="catalog-toolbar__controls">
+                        <label class="price-filter">Цена
+                            <input id="priceMin" type="number" min="0" placeholder="От">
+                            <span>—</span>
+                            <input id="priceMax" type="number" min="0" placeholder="До">
+                        </label>
+                        <select id="sortProducts" aria-label="Сортировка товаров">
+                            <option value="default">По умолчанию</option>
+                            <option value="priceAsc">Сначала дешевле</option>
+                            <option value="priceDesc">Сначала дороже</option>
+                            <option value="popular">По популярности</option>
+                            <option value="name">По названию</option>
+                        </select>
+                        <button type="button" id="resetCatalogFilters" class="catalog-reset" hidden>Сбросить</button>
+                    </div>
                 </div>
                 <div class="products" id="products"></div>
             </div>
         </section>
     </main>
+
+    <main class="product-page" id="productPage" hidden>
+        <div class="container" id="productPageContent"></div>
+    </main>
+
+    <div class="image-zoom-overlay" id="imageZoomOverlay">
+        <button id="closeImageZoom" type="button" aria-label="Закрыть">×</button>
+        <img id="imageZoomed" src="" alt="">
+    </div>
 
     <div class="cart-overlay" id="cartOverlay"></div>
     <aside class="cart-panel" id="cartPanel" aria-label="Корзина">
@@ -107,12 +148,17 @@
         </div>
         <div class="cart-panel__body" id="cartItems">
             <div class="cart-empty">
-                <span>▣</span>
+                <svg class="cart-empty__icon" width="58" height="58" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M3 4h2l2.4 10.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L20.5 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="9.5" cy="19" r="1.5" fill="currentColor"/>
+                    <circle cx="17" cy="19" r="1.5" fill="currentColor"/>
+                </svg>
                 <p>Корзина пока пуста</p>
             </div>
         </div>
         <div class="cart-panel__footer" id="cartFooter">
             <div><span>Итого:</span><strong id="cartTotal">0 ₸</strong></div>
+            <button type="button" id="clearCartButton" class="cart-panel__clear">Очистить корзину</button>
             <button type="button" id="checkoutButton">Оформить заказ</button>
         </div>
     </aside>
@@ -130,7 +176,25 @@
         </form>
     </section>
 
+    <div class="confirm-overlay" id="clearCartOverlay"></div>
+    <section class="confirm-modal" id="clearCartModal" role="dialog" aria-modal="true" aria-labelledby="clearCartTitle">
+        <div class="confirm-modal__icon" aria-hidden="true">×</div>
+        <h2 id="clearCartTitle">Очистить корзину?</h2>
+        <p>Все товары будут удалены из корзины.</p>
+        <div class="confirm-modal__actions">
+            <button type="button" id="cancelClearCart">Отмена</button>
+            <button type="button" id="confirmClearCart">Очистить</button>
+        </div>
+    </section>
+
+    <div class="product-modal-overlay" id="productModalOverlay"></div>
+    <section class="product-modal" id="productModal" role="dialog" aria-modal="true" aria-label="Карточка товара">
+        <button class="product-modal__close" id="closeProductModal" type="button" aria-label="Закрыть">×</button>
+        <div id="productModalContent"></div>
+    </section>
+
     <div class="toast" id="toast" role="status"></div>
+    <button class="back-to-top" id="backToTop" type="button" aria-label="Наверх">↑</button>
 
     <script src="java.js"></script>
 </body>
