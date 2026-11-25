@@ -123,9 +123,12 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .catalog-empty button { height:42px; border:0; border-radius:5px; background:var(--yellow); padding:0 16px; font-weight:800; cursor:pointer; }
 .catalog-reset { height:38px; border:1px solid #dde1e3; border-radius:3px; background:#fff; color:#62686b; padding:0 12px; cursor:pointer; font-size:12px; }
 .catalog-reset:hover { border-color:var(--yellow-dark); color:var(--ink); }
-.catalog-load-more { grid-column:1/-1; width:220px; height:48px; justify-self:center; margin:18px auto 0; border:1px solid #dfe3e5; border-radius:5px; background:#fff; color:var(--ink); font-weight:800; cursor:pointer; transition:.2s; }
-.catalog-load-more span { display:inline-grid; place-items:center; min-width:24px; height:24px; margin-left:6px; border-radius:12px; background:var(--yellow); font-size:11px; }
-.catalog-load-more:hover { border-color:var(--yellow-dark); transform:translateY(-2px); box-shadow:0 8px 18px rgba(21,25,29,.08); }
+.pagination { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:7px; margin-top:30px; }
+.pagination button { min-width:42px; height:42px; border:1px solid #dfe3e5; border-radius:5px; background:#fff; color:var(--ink); padding:0 12px; cursor:pointer; font-size:12px; font-weight:800; transition:.2s; }
+.pagination button:hover:not(:disabled) { border-color:var(--yellow-dark); transform:translateY(-1px); }
+.pagination button.active { border-color:var(--ink); background:var(--ink); color:#fff; }
+.pagination button:disabled { opacity:.42; cursor:not-allowed; }
+.pagination span { color:#92979a; padding:0 2px; }
 .products { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
 .product {
     min-width:0;

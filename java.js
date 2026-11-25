@@ -106,8 +106,8 @@ let cart = (() => {
 })();
 let activeCategory = "all";
 let favorites = new Set(JSON.parse(localStorage.getItem("fuelpartsFavorites") || "[]"));
-let catalogPageSize = 24;
-let catalogVisibleCount = catalogPageSize;
+let catalogPageSize = 12;
+let catalogCurrentPage = 1;
 const fallbackProducts = [...products];
 
 function transliterate(text) {
@@ -335,7 +335,10 @@ function renderProducts(items = products) {
         `;
         return;
     }
-    const visibleItems = items.slice(0, catalogVisibleCount);
+    const totalPages = Math.max(1, Math.ceil(items.length / catalogPageSize));
+    if (catalogCurrentPage > totalPages) catalogCurrentPage = totalPages;
+    const start = (catalogCurrentPage - 1) * catalogPageSize;
+    const visibleItems = items.slice(start, start + catalogPageSize);
     productGrid.innerHTML = visibleItems.map((product, index) => `
         <article class="product" data-product-id="${product.id}">
             <div class="product__image">
@@ -358,11 +361,39 @@ function renderProducts(items = products) {
                 </div>
             </div>
         </article>
-    `).join("") + (catalogVisibleCount < items.length ? `
-        <button class="catalog-load-more" id="loadMoreProducts" type="button">
-            Показать ещё <span>${Math.min(catalogPageSize, items.length - catalogVisibleCount)}</span>
-        </button>
-    ` : "");
+    `).join("");
+    renderPagination(items.length);
+}
+
+function renderPagination(totalItems) {
+    const pagination = document.getElementById("pagination");
+    const totalPages = Math.ceil(totalItems / catalogPageSize);
+    if (totalPages <= 1) {
+        pagination.innerHTML = "";
+        return;
+    }
+
+    let pages = [];
+    const maxVisible = window.innerWidth <= 430 ? 3 : 5;
+    let startPage = Math.max(1, catalogCurrentPage - Math.floor(maxVisible / 2));
+    let endPage = startPage + maxVisible - 1;
+    if (endPage > totalPages) {
+        endPage = totalPages;
+        startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+    for (let page = startPage; page <= endPage; page++) pages.push(page);
+
+    const pageButtons = pages.map(page => `
+        <button type="button" class="${page === catalogCurrentPage ? "active" : ""}" data-catalog-page="${page}" aria-label="Страница ${page}" ${page === catalogCurrentPage ? 'aria-current="page"' : ""}>${page}</button>
+    `).join("");
+
+    pagination.innerHTML = `
+        <button type="button" data-catalog-page="${catalogCurrentPage - 1}" ${catalogCurrentPage === 1 ? "disabled" : ""} aria-label="Назад">Назад</button>
+        ${startPage > 1 ? `<button type="button" data-catalog-page="1">1</button><span>…</span>` : ""}
+        ${pageButtons}
+        ${endPage < totalPages ? `<span>…</span><button type="button" data-catalog-page="${totalPages}">${totalPages}</button>` : ""}
+        <button type="button" data-catalog-page="${catalogCurrentPage + 1}" ${catalogCurrentPage === totalPages ? "disabled" : ""} aria-label="Вперёд">Вперёд</button>
+    `;
 }
 
 function getVisibleProducts() {
@@ -760,7 +791,7 @@ function observeProducts() {
 document.getElementById("filters").addEventListener("click", event => {
     const button = event.target.closest(".filter");
     if (!button) return;
-    catalogVisibleCount = catalogPageSize;
+    catalogCurrentPage = 1;
     document.querySelectorAll(".filter").forEach(item => item.classList.remove("active"));
     button.classList.add("active");
     activeCategory = button.dataset.category;
@@ -770,43 +801,44 @@ document.getElementById("filters").addEventListener("click", event => {
 
 document.getElementById("searchForm").addEventListener("submit", event => {
     event.preventDefault();
+    catalogCurrentPage = 1;
     renderProducts(getVisibleProducts());
     observeProducts();
     document.getElementById("catalog").scrollIntoView({ behavior: "smooth" });
 });
 
 document.getElementById("searchInput").addEventListener("input", () => {
-    catalogVisibleCount = catalogPageSize;
+    catalogCurrentPage = 1;
     renderProducts(getVisibleProducts());
     observeProducts();
 });
 
 document.getElementById("sortProducts").addEventListener("change", () => {
-    catalogVisibleCount = catalogPageSize;
+    catalogCurrentPage = 1;
     renderProducts(getVisibleProducts());
     observeProducts();
 });
 
 document.getElementById("priceMin").addEventListener("input", () => {
-    catalogVisibleCount = catalogPageSize;
+    catalogCurrentPage = 1;
     renderProducts(getVisibleProducts());
     observeProducts();
 });
 
 document.getElementById("priceMax").addEventListener("input", () => {
-    catalogVisibleCount = catalogPageSize;
+    catalogCurrentPage = 1;
     renderProducts(getVisibleProducts());
     observeProducts();
 });
 
 document.getElementById("brandFilter").addEventListener("change", () => {
-    catalogVisibleCount = catalogPageSize;
+    catalogCurrentPage = 1;
     renderProducts(getVisibleProducts());
     observeProducts();
 });
 
 document.getElementById("vehicleFilter").addEventListener("input", () => {
-    catalogVisibleCount = catalogPageSize;
+    catalogCurrentPage = 1;
     renderProducts(getVisibleProducts());
     observeProducts();
 });
@@ -814,7 +846,7 @@ document.getElementById("vehicleFilter").addEventListener("input", () => {
 
 function resetCatalogFilters() {
     activeCategory = "all";
-    catalogVisibleCount = catalogPageSize;
+    catalogCurrentPage = 1;
     document.getElementById("searchInput").value = "";
     document.getElementById("priceMin").value = "";
     document.getElementById("priceMax").value = "";
@@ -827,6 +859,17 @@ function resetCatalogFilters() {
 }
 
 document.getElementById("resetCatalogFilters").addEventListener("click", resetCatalogFilters);
+
+document.getElementById("pagination").addEventListener("click", event => {
+    const button = event.target.closest("[data-catalog-page]");
+    if (!button || button.disabled) return;
+    const page = Number(button.dataset.catalogPage);
+    if (!Number.isInteger(page) || page < 1) return;
+    catalogCurrentPage = page;
+    renderProducts(getVisibleProducts());
+    observeProducts();
+    document.getElementById("catalog").scrollIntoView({ behavior: "smooth", block: "start" });
+});
 productGrid.addEventListener("click", event => {
     if (event.target.closest("#emptyResetCatalog")) {
         resetCatalogFilters();
@@ -834,14 +877,6 @@ productGrid.addEventListener("click", event => {
 });
 
 productGrid.addEventListener("click", event => {
-    const loadMoreButton = event.target.closest("#loadMoreProducts");
-    if (loadMoreButton) {
-        catalogVisibleCount += catalogPageSize;
-        renderProducts(getVisibleProducts());
-        observeProducts();
-        return;
-    }
-
     const detailsLink = event.target.closest("[data-details]");
     if (detailsLink) {
         event.preventDefault();
@@ -955,6 +990,7 @@ document.getElementById("footerLogoLink").addEventListener("click", event => {
 document.getElementById("showAll").addEventListener("click", event => {
     event.preventDefault();
     activeCategory = "all";
+    catalogCurrentPage = 1;
     document.getElementById("searchInput").value = "";
     document.querySelectorAll(".filter").forEach(item => item.classList.toggle("active", item.dataset.category === "all"));
     renderProducts(products);
@@ -966,6 +1002,7 @@ document.getElementById("favoriteButton").addEventListener("click", () => {
         showToast("В избранном пока пусто");
         return;
     }
+    catalogCurrentPage = 1;
     renderProducts(products.filter(product => favorites.has(product.id)));
     document.querySelectorAll(".filter").forEach(item => item.classList.remove("active"));
     document.getElementById("catalog").scrollIntoView({ behavior: "smooth" });
