@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5c400">
+    <title>FuelParts KZ — Запчасти топливной системы</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="topbar">
+        <div class="container topbar__inner">
+            <div class="topbar__item"><span class="pin-icon">●</span> Алматы и весь Казахстан</div>
+            <div class="topbar__item"><span>◷</span> Ежедневно с 09:00 до 21:00</div>
+            <a class="topbar__phone" href="tel:+77271234567">+7 (727) 123-45-67</a>
+        </div>
+    </div>
+
+    <header class="header">
+        <div class="container header__inner">
+            <a class="logo" href="#" id="logoLink" aria-label="На главную">
+                <span class="logo__mark">P</span>
+                <span class="logo__text">FUEL<span>PARTS</span></span>
+            </a>
+            <button class="catalog-button" id="catalogButton" type="button">
+                <span class="catalog-button__icon">☰</span>
+                Каталог
+            </button>
+            <form class="search" id="searchForm" role="search">
+                <input id="searchInput" type="search" placeholder="Поиск по артикулу или названию" autocomplete="off">
+                <button type="submit" aria-label="Найти">⌕</button>
+            </form>
+            <div class="header__actions">
+                <button class="icon-action" id="favoriteButton" type="button" aria-label="Избранное"><span id="favoriteIcon">♡</span><small>Избранное</small></button>
+                <button class="icon-action" id="compareButton" type="button" aria-label="Сравнение"><span>⇄</span><small>Сравнение</small></button>
+                <button class="icon-action icon-action--cart" id="cartButton" type="button" aria-label="Корзина">
+                    <span class="cart-icon">▣</span>
+                    <small>Корзина</small>
+                    <b id="cartCount">0</b>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container hero__inner">
+                <div class="hero__content">
+                    <p class="hero__eyebrow">Все для топливной системы</p>
+                    <h1>Надежная подача<br><span>топлива</span></h1>
+                    <p class="hero__text">Насосы, форсунки, фильтры, регуляторы и присадки от проверенных производителей</p>
+                    <a class="hero__button" href="#catalog">Перейти в каталог <span>→</span></a>
+                </div>
+                <div class="hero__visual" aria-hidden="true">
+                    <div class="hero__circle"></div>
+                    <div class="fuel-pump">
+                        <div class="fuel-pump__cap"></div>
+                        <div class="fuel-pump__body">
+                            <span class="fuel-pump__label">FUEL</span>
+                            <span class="fuel-pump__gauge"></span>
+                        </div>
+                        <div class="fuel-pump__hose"></div>
+                        <div class="fuel-pump__handle"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="advantages">
+            <div class="container advantages__grid">
+                <article><span class="advantage-icon">✓</span><div><h3>Оригинальные детали</h3><p>Для бензина и дизеля</p></div></article>
+                <article><span class="advantage-icon">▣</span><div><h3>Быстрая доставка</h3><p>По Алматы за 1–2 дня</p></div></article>
+                <article><span class="advantage-icon">↩</span><div><h3>Возврат за 14 дней</h3><p>Без лишних вопросов</p></div></article>
+                <article><span class="advantage-icon">☎</span><div><h3>Подбор по VIN</h3><p>Специалист найдёт деталь</p></div></article>
+            </div>
+        </section>
+
+        <section class="catalog section" id="catalog">
+            <div class="container">
+                <div class="section-heading">
+                    <div>
+                        <p class="section-heading__eyebrow">Для любой системы подачи топлива</p>
+                        <h2>Популярные товары</h2>
+                    </div>
+                    <a href="#" id="showAll">Смотреть все <span>→</span></a>
+                </div>
+                <div class="filters" id="filters">
+                    <button class="filter active" type="button" data-category="all">Все товары</button>
+                    <button class="filter" type="button" data-category="pumps">Топливные насосы</button>
+                    <button class="filter" type="button" data-category="injectors">Форсунки и рампы</button>
+                    <button class="filter" type="button" data-category="filters">Топливные фильтры</button>
+                    <button class="filter" type="button" data-category="chemistry">Присадки и очистители</button>
+                </div>
+                <div class="products" id="products"></div>
+            </div>
+        </section>
+    </main>
+
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <aside class="cart-panel" id="cartPanel" aria-label="Корзина">
+        <div class="cart-panel__header">
+            <h2>Корзина <span id="cartTitleCount">(0)</span></h2>
+            <button id="closeCart" type="button" aria-label="Закрыть">×</button>
+        </div>
+        <div class="cart-panel__body" id="cartItems">
+            <div class="cart-empty">
+                <span>▣</span>
+                <p>Корзина пока пуста</p>
+            </div>
+        </div>
+        <div class="cart-panel__footer" id="cartFooter">
+            <div><span>Итого:</span><strong id="cartTotal">0 ₸</strong></div>
+            <button type="button" id="checkoutButton">Оформить заказ</button>
+        </div>
+    </aside>
+
+    <div class="checkout-overlay" id="checkoutOverlay"></div>
+    <section class="checkout-modal" id="checkoutModal" aria-label="Оформление заказа">
+        <button class="checkout-modal__close" id="closeCheckout" type="button" aria-label="Закрыть">×</button>
+        <h2>Оформление заказа</h2>
+        <form id="checkoutForm">
+            <label>Имя<input type="text" name="name" required placeholder="Как к вам обращаться"></label>
+            <label>Телефон<input type="tel" name="phone" required placeholder="+7 (___) ___-__-__"></label>
+            <label>Адрес доставки<input type="text" name="address" required placeholder="Город, улица, дом"></label>
+            <div class="checkout-modal__total"><span>К оплате:</span><strong id="checkoutTotal">0 ₸</strong></div>
+            <button type="submit">Подтвердить заказ</button>
+        </form>
+    </section>
+
+    <div class="toast" id="toast" role="status"></div>
+
+    <script src="java.js"></script>
+</body>
+</html>
