@@ -2656,7 +2656,15 @@ function setAccountView() {
     const showDashboard = Boolean(accountUser && !accountRecoveryActive);
     document.getElementById("accountAuthView").hidden = showDashboard;
     document.getElementById("accountDashboard").hidden = !showDashboard;
-    document.getElementById("accountTitle").textContent = showDashboard ? "Личный кабинет" : "Вход в аккаунт";
+    document.getElementById("accountTitle").textContent = showDashboard
+        ? "Личный кабинет"
+        : accountMode === "reset"
+            ? "Восстановление пароля"
+            : accountMode === "recovery"
+                ? "Новый пароль"
+                : accountMode === "signup"
+                    ? "Создание аккаунта"
+                    : "Вход в аккаунт";
 }
 
 function openAccountModal() {
@@ -2682,6 +2690,7 @@ function setAccountMode(mode) {
     document.getElementById("accountPassword").required = mode !== "reset";
     document.getElementById("accountPassword").autocomplete = isSignup || isRecovery ? "new-password" : "current-password";
     document.getElementById("forgotPassword").hidden = mode !== "login";
+    document.getElementById("accountBackToLogin").hidden = mode !== "reset";
     document.getElementById("accountLoginTab").classList.toggle("active", mode === "login");
     document.getElementById("accountSignupTab").classList.toggle("active", isSignup);
     document.getElementById("accountLoginTab").setAttribute("aria-selected", String(mode === "login"));
@@ -3005,6 +3014,11 @@ document.getElementById("toggleAccountPassword").addEventListener("click", event
 document.getElementById("forgotPassword").addEventListener("click", () => {
     setAccountMode("reset");
     showAccountMessage("Укажите email — мы отправим ссылку для восстановления пароля.");
+});
+
+document.getElementById("accountBackToLogin").addEventListener("click", () => {
+    setAccountMode("login");
+    document.getElementById("accountPassword").focus();
 });
 
 document.getElementById("accountForm").addEventListener("submit", async event => {

@@ -675,13 +675,13 @@ button, a { -webkit-tap-highlight-color: transparent; }
     .section-heading h2 { font-size:25px; }
     .section-heading a { padding-top:17px; }
     .products { grid-template-columns:repeat(2,minmax(0,1fr)); }
-    .product { height:360px; display:grid; grid-template-rows:216px minmax(144px,1fr); }
-    .product__image { height:216px; min-height:216px; }
-    .product__photo { max-height:216px; padding:12px; }
+    .product { height:auto; min-height:0; grid-template-rows:clamp(180px, 52vw, 216px) auto; }
+    .product__image { height:100%; min-height:0; }
+    .product__photo { max-height:100%; padding:12px; }
     .product__badge { top:auto; bottom:10px; left:8px; }
     .product-art { transform:scale(.68); }
-    .product__info { display:grid; grid-template-rows:auto minmax(42px,1fr) auto; padding:12px 11px; }
-    .product__name { margin:6px 0 9px; font-size:12px; }
+    .product__info { display:flex; flex-direction:column; padding:12px 11px; }
+    .product__name { min-height:0; margin:2px 0 0; font-size:12px; }
     .product__price { font-size:18px; }
     .product__bottom { flex-direction:column; align-items:stretch; gap:6px; }
     .product__cart { width:100%; height:44px; margin-top:8px; }
@@ -690,7 +690,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
     .checkout-modal { padding:24px 20px; }
 }
 
-@media (max-width: 350px) {
+@media (max-width: 380px) {
     .topbar__item { display:none; }
     .topbar__inner { justify-content:flex-end; }
     .products { grid-template-columns:minmax(0,1fr); }
@@ -837,9 +837,17 @@ button, a { -webkit-tap-highlight-color: transparent; }
     .vehicle-picker { padding:16px; }
     .vehicle-picker__steps, .catalog-filters-grid, .admin-form-grid { grid-template-columns:1fr; }
     .admin-compat-row { grid-template-columns:1fr 1fr; }
-    .product { min-height:385px; grid-template-rows:190px 1fr; }
+    .product { height:auto; min-height:0; grid-template-rows:190px auto; }
     .product__image { height:190px; }
     .product__photo { max-height:190px; }
+    .product__info { display:flex; min-width:0; flex-direction:column; }
+    .product__submeta { min-width:0; }
+    .product__submeta > span { max-width:100%; overflow-wrap:anywhere; }
+    .product__compat { overflow-wrap:anywhere; }
+    .product__bottom { margin-top:auto; align-items:stretch; flex-direction:column; gap:6px; }
+    .product__bottom > div:last-child { width:100%; align-items:stretch; }
+    .product__details { justify-content:center; }
+    .product__cart { width:100%; min-width:0; }
 }
 
 /* --- Supabase Account --- */
@@ -875,6 +883,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .account-password input { padding-right:78px; }
 .account-password button { position:absolute; top:0; right:6px; height:44px; border:0; background:transparent; color:#62686b; font-size:11px; font-weight:700; cursor:pointer; }
 .account-forgot { justify-self:end; margin-top:-4px; border:0; background:none; color:#62686b; font-size:11px; text-decoration:underline; cursor:pointer; }
+.account-back { justify-self:start; border:0; background:none; color:#62686b; padding:2px 0; font-size:12px; font-weight:700; cursor:pointer; }
+.account-back:hover { color:var(--ink); text-decoration:underline; }
 .account-submit { min-height:46px; border:0; border-radius:4px; background:var(--yellow); color:var(--ink); padding:0 15px; font-size:12px; font-weight:800; cursor:pointer; transition:.2s; }
 .account-submit:hover { background:#ffd12a; }
 .account-submit:disabled,.account-google:disabled { opacity:.55; cursor:wait; }
